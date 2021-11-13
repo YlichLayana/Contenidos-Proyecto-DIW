@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background: silver;
+            text-align: justify;
+            font-family: Tahoma, Geneva, sans-serif;
+            font-size: 16px;
+            color: #757E82;
+        }
+
+        label {/*ordena los input de texto label*/
+            display: inline-block;
+            width: 80px;
+        }
+
+        #header {
+            background: rgb(16, 88, 26);
+            text-align: center;
+            padding: 20px;
+            color: white;
+            text-shadow: black 0.1em 0.1em 0.2em;
+        }
+
+        #container {
+            margin: 0 auto;
+            width: 600px;
+            background: #fff;
+            border: solid 1px;
+            padding: 10px;
+        }
+
+        #content {
+            background: white;
+            clear: left;
+            padding: 30px;
+        }
+
+        table.colapsado {
+            border-collapse: collapse;
+            border: 2px;
+        }
+
+        table tr th {
+            background-color: rgb(11, 122, 48);
+            border: solid rgb(37, 49, 45) 1px;
+            padding: 4px;
+            color: black;
+        }
+
+        tr:nth-child(odd) td {
+            background-color: rgb(214, 214, 214);
+            border: solid rgb(37, 49, 45) 1px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+
+        function capturar() {
+
+            //constructor de Objeto persona 
+            function Persona(nombre, apellido1, apellido2, edad, salario, salarioTotal) {
+                this.nombre = nombre;
+                this.apellido1 = apellido1;
+                this.apellido2 = apellido2;
+                this.edad = edad;
+                this.salario = salario;
+                this.salarioTotal = salarioTotal;
+            }
+
+            //variables con la que se captura los datos de los input de tipo texto
+            var nombreCapture = document.getElementById("nombre").value;
+            var apellido1Capture = document.getElementById("apellido1").value;
+            var apellido2Capture = document.getElementById("apellido2").value;
+            var edadCapture = document.getElementById("edad").value;
+            var salarioCapture = document.getElementById("salario").value;
+            //aqui en estas variable conviertos los datos de edad y salario de tipos String a tipos numericos
+            var convertEdad = parseInt(edadCapture);
+            var convertSalar = parseFloat(salarioCapture);
+            // aqui en esta variable invoco la funcion de calcular salario
+            var salarioTotalCapture = CalculaSalar(convertSalar, convertEdad);
+
+            //variable global u objeto persona
+            nuevaPersona = new Persona(nombreCapture, apellido1Capture, apellido2Capture, edadCapture, salarioCapture, salarioTotalCapture);
+
+            //console.log(nuevaPersona);
+            agregar();
+        }
+
+        //funcion que calcula el salario segun lo requerido
+        function CalculaSalar(salar, edad) {
+            let salarioTotal = 0;
+
+            if (salar >= 1000 && salar < 2000) {
+                console.log(salar);
+                if (edad > 45) {
+                    console.log(edad);
+                    salarioTotal = salar + ((salar * 3) / 100);
+                } else
+                    salarioTotal = salar + ((salar * 10) / 100);
+            }
+            else if (salar < 1000) {
+                salarioTotal = 1100;
+                if (edad > 45) {
+                    salarioTotal = salarioTotal + ((salarioTotal * 15) / 100);
+                } else if (edad <= 45 && edad >= 30) {
+                    salarioTotal = salarioTotal + ((salarioTotal * 3) / 100);
+                } else
+                    salarioTotal;
+            }
+            else
+                salarioTotal = salar;
+
+            return salarioTotal;
+        }
+
+        //array de objetos 
+        var personas = [];
+        function agregar() {
+            /*funcion que agrega los datos de los objetos al objeto nueva persona 
+            y los almacena en el array personas y los presenta en una tabla*/
+            personas.push(nuevaPersona);
+            console.log(personas);
+            document.getElementById("tabla").innerHTML += '<tbody><tr><td>' + nuevaPersona.nombre + '</td><td>' + nuevaPersona.apellido1 + '</td><td>' + nuevaPersona.apellido2 + '</td><td>' + nuevaPersona.edad + '</td><td>' + nuevaPersona.salario + '</td><td>' + nuevaPersona.salarioTotal + '</td></tr></tbody>';
+        }
+
+
+    </script>
+
+    <h1 id="header">Datos Personal</h1>
+
+    <form id="container">
+        <div id="content">
+            <label for="">Nombre: </label><input type="text" id="nombre"> <br> </br>
+            <label for="">Apellido1: </label><input type="text" id="apellido1"> <br> </br>
+            <label for="">Apellido2: </label><input type="text" id="apellido2"> <br> </br>
+            <label for="">Edad: </label><input type="text" id="edad"> <br> </br>
+            <label for="">Salario-Base: </label><input type="text" id="salario"> <br> </br>
+            <button id="boton" type="reset" onclick="capturar()">Enviar</button>
+
+        </div>
+    </form>
+
+
+    <div id="container">
+        <div id="content">
+            <table class="colapsado" id="tabla">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido1</th>
+                        <th>Apellido2</th>
+                        <th>Edad</th>
+                        <th>Salario-Base</th>
+                        <th>Salario-Recibir</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="respuestas"></div>
+</body>
+
+</html>
