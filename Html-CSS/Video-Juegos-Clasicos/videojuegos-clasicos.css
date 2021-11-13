@@ -1,0 +1,150 @@
+﻿@font-face {
+  font-family: "Monoton";
+  src: url("fonts/monoton.woff2");
+}
+
+html {
+  background-color: black;
+  /*
+  background: url("img/matrix.png") top left repeat-y,
+    black url("img/matrix.png") top right repeat-y;
+  */
+}
+
+/* Se podía haber hecho el fondo con background de imágenes laterales 
+  pero he optado por hacerlo con divisiones y posicionamiento fixed */
+#lateral-izq, #lateral-der {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+}
+
+#lateral-izq {
+  left: 0;
+  background: url("img/matrix.png");
+  background-size: contain;
+}
+
+#lateral-der {
+  right: 0;
+  background: url("img/matrix2.png");
+  background-size: contain;
+}
+
+/* Estilos de la cabecera */
+#cabecera{
+  text-align: center;
+  font-size: 2em;
+  color: limegreen;
+}
+
+#cabecera #titulo {
+  border-bottom: 2px solid limegreen;
+  height: 2em;
+  /* para que la línea solo ocupe el ancho del texto */
+  display: inline-block;
+}
+
+#cabecera #titulo p {
+  border-bottom: 1px solid limegreen;
+  padding-bottom: 0;
+  font-family: "Monoton";
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  line-height: 0px;
+  height: 12px;
+  /* para que la línea solo ocupe el ancho del texto */
+  display: inline-block;
+}
+
+#cabecera #iconos {
+  padding-top:10px;
+  line-height: 0;
+}
+
+#cabecera a {
+  text-decoration: none;
+}
+
+/* Estilos de los juegos */
+.juego {
+  margin-left: 80px;
+  margin-right: 80px;
+  margin-bottom: 10px;
+}
+
+.titulo{
+  border: solid white;
+  /* sin borde inferior para no solapar con contenido */
+  border-width: 1px 1px 0; 
+  padding: 2px;
+  color:white;
+  background-color: limegreen;
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+}
+
+.titulo::first-letter {
+  font-size: 1.2em;
+}
+
+.contenido {
+  border: 1px solid white;
+  padding: 2px;
+  font-family: "Courier", monospace;
+  font-size: 10pt;
+  color: white;
+  text-align: justify;
+  /* para que la imagen no desborde con respecto a la caja */
+  display:inline-block;
+}
+
+.nombre {
+  color: yellow;
+}
+
+.autor {
+  color: red;
+}
+
+.fecha {
+  color: green;
+}
+
+.juego p {
+  padding: 3px;
+}
+
+/* Imágenes de los juegos */
+img {
+  border: 3px solid green;
+  padding: 3px;
+  margin: 6px;
+  background-color: white;
+}
+
+#pong img {
+  float: right;
+}
+
+#space img {
+  float: left;
+}
+
+#pacman img {
+  float: right;
+}
+
+/* Pie de página */
+#pie {
+  bottom: 0;
+  margin-left: 80px;
+  margin-right: 80px;
+  border-top: 1px solid green;
+  border-bottom: 1px solid green;
+  color: white;
+  font-family: "Courier", monospace;
+  font-size: 8pt;
+  line-height: 0;
+}
