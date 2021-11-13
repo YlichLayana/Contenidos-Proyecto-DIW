@@ -1,0 +1,661 @@
+1. Conectar y Desconectar del servidor 
+	mysql -u root -p	(para entrar)
+	enter password: root
+
+	exit o quit (para desconectar)
+
+2. Todos los comandos de Mysql termina en (;). Excepto los dos anteriores (exit o quit)
+
+3.Podemos ejecutar comandos del SO (ubuntu) con
+	SYSTEM comando_ubuntu: (system clear;) 
+
+4. Algunos comandos básicos 
+	a) Mostrar las bases de datos que hay en el sistema
+		SHOW DATABASES;
+	b) Abri una BD
+		USE nombre_bd;
+	c) No existe un comando especifico para cerrar una BD. Simplemente al abrir otra, la BD cambia.
+	d) Ver las tablas o relaciones de un BD 
+		SHOW FULL TABLES;
+	e) Ver el diseño de una tabla o relación
+		DESCRIBE nombre_tabla;
+	f) Tambien podemos usar variables y funciones del servidor para obtener información genérica: 
+		SELECT USER(), VERISON(), CURRENT_DATE, CURRENT_TIME;
+
+CREACION DE UNA BASE DE DATOS
+5. Proceso de creacón de una Base de Datos
+	a) Entrando como root, creamos una nueva BD y un nuevo usuario (el oreden da igual)
+		CREATE DATABASE nombre_bd;
+		CREATE USER nombre_usuario IDENTIFIED BY 'contraseña';
+	b) Otorgar todos los privilegios al usuario sobre la BD:
+		GRANT ALL PRIVILEGES ON nombre_bd.* TO nombre_usuario;
+		FLUSH PRIVILEGES;
+	c) EXIT para salir del mysql root
+
+	d) Comprobar la conexión con el nuevo usuario
+		MYSQL -U nombre_usuario -Pcontraseña
+	
+	e) USE nombre_bd;
+
+6. Crear tablas de nuestra base de datos
+	a) para ellos creamos un script de sql utilizando un editor de texto plano (notepad, gedir, nano, vi)
+	nunca un procesador de texto ya que este incluye caracteres no imprimibles.
+	Esto lo hacemos guardándolo con la extensión .sql
+	
+	CREATE TABLE lista
+	(
+	 dni VARCHAR(50) PRIMARY KEY,
+	 id INTEGER UNIQUE,
+	 nombre VARCHAR(50) NOT NULL,
+	 apellido1 VARCHAR(50) NOT NULL,
+	 apellido2 VARCHAR(50) NOT NULL
+	);
+
+	b) Ejecutamos el script con:(system pwd) observamos el directorio de nuestro archivo sql
+		SOURCE ruta_script; (source lista.sql)
+
+7. Modificar el esquemas de una relación 
+	a) Añado un nuevo atributo
+		ALTER TABLE lista ADD COLUMN edad VARCHAR(50) NOT NULL;
+	b) Modificar un atributo existente 
+		ALTER TABLE lista MODIFY COLUMN edad INTEGER NOT NULL;
+	c) Borrar un atributo 
+		ALTER TABLE lista DROP COLUMN edad;
+
+8. Manipulación básica de datos
+	8.1 Insertar datos
+		INSERT INTO tabla (cte1, cte2..., cten);
+		Sin em bargo la insercción de datos no se hace uno a uno,
+		si no que al igual que con la creación, vamos a crear un script de inserción de
+		datos y a ejecutarlo con el comando SOURCE.
+	Ejemplo:
+		INSERT INTO lista VALUES('1152631K',1,'Antonio','Perez','Gomez');
+		INSERT INTO lista VALUES('2152632K',2,'Antonio','Perez','Gomez');
+		INSERT INTO lista VALUES('3152633K',3,'Antonio','Perez','Gomez');
+		INSERT INTO lista VALUES('4152633K',4,'Antonio','Perez','Gomez');
+		INSERT INTO lista VALUES('5152633K',5,'Antonio','Perez','Gomez');
+
+	8.2 Consultar datos 
+		SELECT * FROM lista; (*  este se usa para ver los datos de todos los campos o atributos)
+		SELECT id, nombre FROM lista; ( y aqui se escoge los atributos de los cuales quiere ver los datos)
+
+	8.3 Modificar datos
+		UPDATE lista SET atr1=v1, [at2=v2]...[atn=vn] WHERE condicion;
+	Ejemplo:
+		UPDATE lista SET nombre='Juan',apellido1='Martinez',apellido2='Ruiz'  WHERE id=2;
+		(para realizar el cambio especificamente en una tupla y no para toda la tabla se usa el WHERE condicion 
+		 y esta condicion sera un atributo unico que no se repita en ninguna otra tabla ejemplo Id=2)
+	8.4 Borrado de datos
+		DELETE FROM tabla WHERE condición;
+	Ejemplo:
+		DELETE FROM tabla WHERE id=5;
+
+9. Borra una relacion o tabla
+	a) Borrar todas las tuplas de una relacion sin borrar la relacion
+		TRUNCATE TABLE lista;
+	b) Borrar la relacion(tabla) completamente
+		DROP TABLE lista;
+
+10. Más Restricciones
+En ocaciones para declarar una restricción semántica tenemos que hacer uso de la cláusula COSTRAINT, que tiene 
+la siguiente sintaxis:
+	CONSTRAINT nombre_constraint
+	cuerpo_del_constraint
+
+	10.1 Chequear datos
+		CONSTRAINT ck_atributo
+		CHECK (condición)
+
+	Ejemplo: De relación con dos restricciones (una numerica y otra alfanumerica)
+	CREATE TABLE lista
+	(
+	 dni VARCHAR(50) PRIMARY KEY,
+	 id INTEGER UNIQUE,
+	 nombre VARCHAR(50) NOT NULL,
+	 apellido1 VARCHAR(50) NOT NULL,
+	 apellido2 VARCHAR(50) NOT NULL
+	 edad INTEGER NOT NULL,
+	 CONSTRAINT ck_edad
+	 CHECK (edad BETWEEN 18 AND 65),
+	 tipo CHAR(1) NOT NULL,
+	 CONSTRAINT ck_tipo
+	 CHECK(tipo IN ('A','B','C'))
+	);
+
+	10.2 Clave Primaria formada por más de un atributo. En este caso necesitamos tambien un CONSTRAINT
+		CONSTRAINT pk_nombredelatabla
+		PRIMARY KEY (atr1, atr2,...atrn)
+	Ejemplo:
+		CREATE TABLE disco
+		(
+		 discografica VARCHAR(50),
+		 disco VARCHAR (50),
+		 CONSTRAINT pk_disco
+		 PRIMARY KEY (discografica, disco)
+		);
+
+	10.3 Clave Foránea
+	La sintaxis general es:
+		CONSTRAINT fk_tablaActual_tablaReferenciada
+		FOREIGN KEY (atr1, atr2,...atrn)
+		REFERENCES nombreTablaReferenciada (atr1, atr2,...atrn)
+		[ON UPDATE NO ACTION | CASCADE | SET NULL | SET DEFAULT]
+		[ON DELETE NO ACTION | CASCADE | SET NULL | SET DEFAULT]
+
+11. El uso de AUTO_INCREMENT para generar valores y una nueva forma de insertar datos
+AUTO_INCREMENT es una cláusula que me permite generar valores númericos (empieza por el 1 y se va incrementando).
+Se usa para generar códigos o referencias númericas.
+Ejemplo:
+	CREATE TABLE ejemplo
+	(
+	 id INTEGER AUTO_INCREMENT PRIMARY KEY,
+	 NOMBRE VARCHAR (50) NOT NULL
+	);
+
+	INSERT INTO ejemplo (nombre) VALUES
+	('Alejandro'),
+	('Laura'),
+	('Andrea'),
+	('Luis'),
+	('Juan'),
+
+	
+12. Consultas de datos (la sentencia SELECT)	>>>revisar el archivo txt 3.comados select<<<
+
+	12.1 Fundamento matemático (Algebra relacional) >> Revisar Ejercicios txt 4-5 <<
+	12.2 Sentencia SELECT simplificada
+	SELECT [DISTINCT]{ * | col1, [col2]...[,coln] FROM tabla [WHERE condicion] [ORDER BY col]
+
+
+13. RESUMEN>>> Consultas Sencillas
+	a) - Proyeccion
+	   - Seleccion
+
+	b) Utilizacion de alias
+	Permiten renombrar las columnas del resultado. Esto se hace en la Proyección (SELECT) 
+	poniendo AS alias detrás del atributo a renombrar
+
+	c)Ordenación.
+	Podemos ordenar el resultado por uno o más atributos, ascendente o descentemente con la cláusula ORDER BY
+
+	d)Eliminación de filas repetidas
+	Se hace con cláusula DISTINCT justo después de SELECT y antes de la proyección
+
+
+	13.1 Expresiones
+	Podemos usar expresiones matemáticas tanto en la Proyección como en la Selección
+	Los operadores son +(suma) -(resta) *(producto) /(división)
+
+
+14. PREDICADOS
+	a) Predicado NULL
+	Se usa para valores de atributos que pueden ser nulos
+	SELECT * FROM Tabla WHERE atributo IS NOT NULL;
+EJEMPLO: 
+	select * from temple where comis is not null;
+
+	b) Predicado BETWEEN 
+	se usa para verificar la pertencia a un intervalo de valores
+ 		expresion_1 [NOT] BETWEEN
+	SELECT * FROM tabla WHERE atrib1 BETWEEN expresion1 and expresion2 ORDER BY atrib1;
+EJEMPLO:
+	select * from temple where numhi between 2 and 4 order by numhi;
+
+
+	c) Predicado IN
+	se usa para verificar la correspodecia de un expresion con una lista de valores
+		expresion [not] IN (cte1, cte2,...ctn)
+	SELECT * FROM tambla WHERE atrib1 IN (cte1, cte2,...ctn)
+EJEMPLO:
+	select * from temple where numhi in (1, 3, 5)
+
+
+	d) Predicado LIKE
+	Se usa para evaluar correspondencias de combinaciones de caracteres que cumplan ciertas condiciones,
+	Puede usar con valores explicitos o bien definir patrones usando dos metacaracteres:
+	_ (se sustituye por un unico caracter)
+	% (se sustituye por una cadena de caracteres)
+	
+
+	e) Predicados y Subconsultas 
+	Unas subconsukta es una consulta, dentro de otra consulta. El formato generico es:
+		SELECT proyeccion FROM tabla WHERE (otro SELECT)
+Existen tres posibilidades:
+	1.- Predicado EXISTS
+	Este predicacdo devuelve V si la subconsulta devuelve alguna fila. 
+	Si la subconsulta devuelve una tabla vacia es F. 
+	Nunca puede ser NULO
+		SELECT proyeccion FROM tabla WHERE EXISTS (otro SELECT)
+
+	2.- En una operacion de comparacion en la que la subconsulta  devuelve un unico valor 
+		SELECT proyeccion FROM tabla WHERE expresion {<,><>=...}(SELECT que devuelve un unico valor)
+
+	3.- En una operacion de comparacion en la que la subconsulta devulve mas de un valor.
+	Son los llamados 'Predicados cuantificados'. Utilizan tres verbos, pero dos posibilidades 
+		-SOME o ANY (comprueba si la comparacion se cumple para alguno de los valores de la subconsulta)
+		-ALL (compruba si la comparacion se cumple para todos los valores de las subconsulta)
+	SELECT proyeccion FROM tabla WHERE expresion {<,><>=...} {SOME o ANY | ALL}(SELECT que devuelve un unico valor)
+
+
+14.2 FUNCIONES
+Una funcion obtiene un valor unico aplicando una serie de operaciones a otra serie de valores dados 
+que se conocen como argumentos. Puede tener ninguno o varios de estos argumentos. De manera generica 
+tiene el siguiente formato.
+	NOMBRE_FUNCION ([argu1] [,argu2]...[,arguN])
+
+Nostros vamos a estudiar aquellas quepertenecen al estandar SQL92 aunque en el SGBD de mysql 
+podemos encontrar muchisimas mas.
+
+Dos grupos 
+a) Funciones escalares 
+son aquellas cuyos argumentos estan formados por un unico valor 
+	
+	LENTH (expresion)
+	Devuelve la longitud de la expresion. Puede ser la longitud de una cadena de caracteres o
+	los bytes que se utilizan para almacenar un tipo de datos.
+
+	SUBSTRING (cadena, posicion, longitud)
+	Devuelve una subcadena de 'cadena' desde el caracter 'posicion' con un tamaño de 'longitud'
+
+b) Funciones Colectivas o de columna
+Somn aquellas cuyos argumentos están formados por un conjunto de valores 
+
+	AVG(valores) Calcula el promedio de los valores
+	SUM(valores) Calcula la suma de los valores 
+	MIN(valores) Calcula el minimo de los valores 
+	MAX(valores) Calcula el máximo de los valores
+	COUNT(valores) Calcula el número de valores
+
+Par utilizar estas funciones debemos tener en cuenta las siguientes reglas y formatos de uso
+	Reglas:
+	- Si entre los valores existen NULOS, estos se eliminan antes de aplicar la funcion
+	- Si el numero de valores es vacio, COUNT devuelve 0, pero el resto devulve NULL
+	- Para SUM, MAX  y MIN el resultado tiene el mismo tipo de dato que el de sus valores
+	- Para AVG el resultado es un numero con decimales 
+
+EJEMPLOS:
+mysql> select max(comis), min(comis), count(comis), avg(comis) from temple;
++------------+------------+--------------+------------+
+| max(comis) | min(comis) | count(comis) | avg(comis) |
++------------+------------+--------------+------------+
+|        120 |         50 |           14 |    97.8571 |
++------------+------------+--------------+------------+
+1 row in set (0.04 sec)
+
+mysql> select max(comis), min(comis), count(comis), avg(comis), sum(comis) from temple;
++------------+------------+--------------+------------+------------+
+| max(comis) | min(comis) | count(comis) | avg(comis) | sum(comis) |
++------------+------------+--------------+------------+------------+
+|        120 |         50 |           14 |    97.8571 |       1370 |
++------------+------------+--------------+------------+------------+
+1 row in set (0.00 sec)
+
+mysql> select sum(numhi), max(numhi), min(numhi), avg(numhi) from temple;
++------------+------------+------------+------------+
+| sum(numhi) | max(numhi) | min(numhi) | avg(numhi) |
++------------+------------+------------+------------+
+|         46 |          6 |          0 |     1.3529 |
++------------+------------+------------+------------+
+1 row in set (0.00 sec)
+
+
+FORMATOS:
+Formato 1: 
+	NOMBRE_FUNCION ([DISTINCT] nombre-columna)
+	- Puede usarse con todas las funciones.
+	- Nombre-Columna no puede ser una expresion
+	- DISTINCT, que es opcional, elimina las filas repetidas
+
+Ejemplos:
+mysql> select distinct numhi from temple;
++-------+
+| numhi |
++-------+
+|     3 |
+|     1 |
+|     2 |
+|     0 |
+|     4 |
+|     6 |
+|     5 |
++-------+
+7 rows in set (0.00 sec)
+
+mysql> select count(distinct numhi) from temple;
++-----------------------+
+| count(distinct numhi) |
++-----------------------+
+|                     7 |
++-----------------------+
+1 row in set (0.00 sec)
+
+
+Formato 2:
+	NOMBRE_FUNCION (expresion)
+	- Puede usarse con todas las funciones menos con COUNT
+	- EL argumento expresion debe contener al menos un nombre_columna y No puede contener otra funcion colectiva 
+
+		
+Formato 3: 
+	COUNT(*)
+	- Solo se puede usar con la funcion COUNT 
+	- Devuelve el numero de valores de la consulta
+
+Ejemplos:mysql> select count(*) from temple;
++----------+
+| count(*) |
++----------+
+|       34 |
++----------+
+1 row in set (0.02 sec)
+
+mysql> select count(*) from tdepto;
++----------+
+| count(*) |
++----------+
+|        8 |
++----------+
+1 row in set (0.06 sec)
+
+mysql> select count(*) from tcentr;;
++----------+
+| count(*) |
++----------+
+|        2 |
++----------+
+1 row in set (0.05 sec)
+
+===============================================================================================================
+
+14.3: Datos de tipo Tiempo			clase 25/02/2021
+Los datos de tiempo, se caracterizan porque no tiene un base decimal
+
+Existen tres tipos de datos tiempo
+a) FEcha (DATE)
+	En mysql el formato general de fecha es 'yyyy-mm-dd'
+
+b) hora (TIME)
+	En mysql el formato general 'hh:mm:ss'
+
+c) Instante (TIMESTAMP)
+	El formato general en mysql el formato general es'yyyy-mm-dd hh:mm:ss'
+
+
+FECHAS COMO CADENA DE CARACTERES 
+Para introducir y manejar datos de tipo tiempo (valores explicitos de tiempo)se utilizan cadenas de caracteres 
+siguiendo unos determinados patrones.
+
+Dependiendo del SGBD o de la zona geografica, en el estandar SQL se definen diferentes formatos de datos de tipo tiempo
+Estos son: (ISO, USA, EUR, JIS)
+
+Podemos realizar operaciones de comparacion (>, <. >=...) entre un dato de tipo tiempo almacenado 
+es decir (atributos fecin y fecha de la BD empleados) y una cadena de caracteres que siga los patrones.
+
+
+REGISTROS ESPECIALES 
+
+CURRENT_DATE() Devuelve la fecha actual del sistema
+CURRENT_TIME() Devuelve la hora actual del sistema 
+CURRENT_TIMESTAND() Devuelve ek isntante actual del sistema (SOLO EN MYSQL)
+
+mysql> select current_date(), current_time(), current_timestamp();
++----------------+----------------+---------------------+
+| current_date() | current_time() | current_timestamp() |
++----------------+----------------+---------------------+
+| 2021-02-28     | 22:26:03       | 2021-02-28 22:26:03 |
++----------------+----------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> select current_date, current_time, current_timestamp;
++--------------+--------------+---------------------+
+| current_date | current_time | current_timestamp   |
++--------------+--------------+---------------------+
+| 2021-02-28   | 22:26:35     | 2021-02-28 22:26:35 |
++--------------+--------------+---------------------+
+1 row in set (0.00 sec)						cualquier de las dos formas funciona 
+
+
+FUNCIONES QUE OPERAN SOBRE DATOS DE TIPO TIEMPO
+
+	a) Aquellas que convierten tiempo en cadena de caracteres o numero y viceversa.
+		CHAR(expresion, tipo_de_formato) Convierte un valor de tipo tiempo a un valor alfanumerico(NO ESTÁ EN MYSQL)
+		-expresion es un valor de tipo tiempo 
+		-tipo_de_formato es ISO, USA, EUR, o JIS
+
+		DAY(expresion) Convierte a una fecha a un numero entrero positivo. Este numero indica los dias transcurridos 
+		desde el 1 de enero del año 1. (NO ESTÁ EN MYSQL)
+		-expresion es un valor de tipo fecha o una cadena con formato de fecha valido.
+
+		DATE(expresion) Convierte la expresion a un dato de tipo tiempo.(EN MYSQL HAY UNA FUNCION DATE, PERO HACE OTRA COSA)
+		-expresion es un valor numerico o alfanumerico.
+
+		TIME(expresion) Convierte un valor alfanumerico a un dato de tipo hora(EN MYSQL HAY UNA FUNCION DATE, PERO HACE OTRA COSA)
+		-expresion es un valor alfanumerico que siga un patron correcto de hora
+
+	EN TODAS LAS FUNCIONES ANTERIORES, SI LA EXPRESION ES null LA FUNCION DEVUELVE null
+
+	
+	Para convertir y formatear datos de tipo tiempo en mysql usaremos 
+
+		DATE_FORMAT(fecha, formato)
+		-fecha es un dato de tipo tiempo
+		-formato es el formato a usar 
+
+		TIME_FORMAT(hora, formato) es análoga a la anterior
+		-hora es un tipo de dato tiempo 
+		- formato es el formato a usar 
+
+
+b) Funciones que permiten descomponer un darto de tipo tiempo
+
+	YEAR(expresion)
+	MONTH(expresion)
+	DAY(expresion)
+	MINUTE(expresion)
+	SECOND(expresion)
+
+TODAS FUNCIONAN EN MYSQL
+
+c)Funciones que permiten operar con datos tiempo. Aritmética de tiempo
+
+Concepto duración
+En SQL estándar, se llama 'duración' a un intervalo de tiempo. Hay tres:
+
+1.-Duración calendario
+Número, positivo o negativo, de tipo DECIMAL(8,0) cuyo valor se interpreta como un intervalo válido de tiempo en el calendario Gregoriano
+Las primeras 4 cifras (a la izquierda) son los años, las dos siguientes los meses y las 2 más a la derecha los días
+
+2.-Duración de reloj
+Es un número, positivo o negativo, de tipo DECIMAL(6,0) cuyo valor se interpreta como un intervalo de reloj
+Las dos primeras cifras son las horas, las dos siguientes los minutos y las 2 últimas, los segundos
+
+3.-Duración explícita
+Es un intervalo de tiempo expresado como un número positivo, entero o no, seguido que de una palabra reservada de SQL que representa una
+unidad de tiempo. Estas palabras pueden ser YEARS,MONTHS, DAYS, HOURS, MINUTES, SECONDS... (Ojo!!! en plural)
+
+Aritmética de fechas
+
+Dos fechas no pueden sumarse.
+Si pueden restarse obteniendo el número transcurridos entre ellas o bien una duración.
+También aunmentar y disminuir una fecha en:
+
+	-en una duración. Obtenemos una duración
+	-intervalo. Obtenemos una fecha
+	
+Para restar dos fechas y obtener el valor exacto en días, meses y años, necesitamos, además de un algoritmo, comprobar el posible desfase, según
+los años implicados
+
+FUNCIONES DE MYSQL PARA LA ARITMÉTICA DE FECHAS
+
+	NOW(). Devuelve el instante actual del sistema
+	mysql> select now();
+	+---------------------+
+	| now()               |
+	+---------------------+
+	| 2021-03-01 12:42:47 |
+	+---------------------+
+	1 row in set (0.00 sec)
+
+	
+	DATEDIFF(fecha1, fecha2). Devuelve los días transcurridos entre las dos fechas
+	
+	-fecha1 es obligatoria y debe ser la más reciente
+	-fecha2 es obligatoria
+	
+	DATE_ADD(fecha, INTERVAL valor intervalo). Aumenta la fecha en un intervalo
+	
+	-fecha es la fecha de partida
+	-INTERVAL es una palabra reservada y obligatoria en la llamada a la función
+	-valor es un número
+	-intervalo indica el tipo de intervalo a sumar (year, month, day, week, ...) (OJO!!!! en singular)
+	
+	
+	DATE_SUB(fecha, INTERVAL valor intervalo). Disminuye la fecha en un intervalo
+	
+	-fecha es la fecha de partida
+	-INTERVAL es una palabra reservada y obligatoria en la llamada a la función
+	-valor es un número
+	-intervalo indica el tipo de intervalo a restar (year, month, day, week, ...) (OJO!!!! en singular)
+
+	
+	TIMESTAMPDIFF(intervalo, fecha1, fecha2) Devuelve en el número de intervalos indicado la diferencia entre las dos fechas (fecha2-fecha1)
+	
+	-intervalo es uno de los intervalos anteriores (year, month, week, day ...)
+	-fecha1 es la más antigua
+	-fecha2 es la más reciente
+
+
+14.3 CONSULTAS CON AGRUPAMIENTOS DE FILAS 
+Agrupar es crar un conjunto con filas de una determinada consulta 
+al grupo obtenido se le pueden aplicar funciones colectivas o de columna que realizan un calculo sobre los elemento individuales del grupo
+
+Pueden realizarse grupos de dos formas distintas 
+a) De manera implicita (ya lo hemos hecho)
+Es cuando aplicamos una funcion colectiva o de columna a las filas de una consulta
+
+mysql> select avg(salar) from temple; 	NOTA: aplicando una funcion colectiva solo obtiene una fila la que se aplica a todos los elementos de
++------------+				la tabla en este caso sera el promedio de todo el conjuto de los valores de la columna salar
+| avg(salar) |
++------------+
+|   302.9412 |
++------------+
+1 row in set (0.00 sec)
+
+b) De manera explicita (clausula GROUP BY)
+Permite crear grupos o subgrupos con aquellas filas que tienen el mismo valor para un determinado atributo
+Esta clausula tiene la siguiente sintaxis
+	SELECT atributo_agru, funcion_colectiva		NOTA: agrupar es crear un conjunto sobre el que podemos aplicar una funcion colectiva
+	FROM tabla 
+	[WHERE condicion] 
+	[GROUP BY atributo_agru/s]
+	[ORDER BY atributos/s]
+
+CONSIDERACIONES:
+-atributo_agru debe ser un atributo cuyo valor se repita para más de una tupla
+-En la proyeccion debeá apafecer  en primer lugar ese atributo_agru (para identificar el grupo)
+-junto a este atributo_agru en la proyección, SOLO PUEDEN APARECER FUNCIONES COLECTIVAS
+
+mysql> select numde, count(*) from temple group by numde;
++-------+----------+
+| numde | count(*) |
++-------+----------+
+|   100 |        3 |
+|   110 |        3 |
+|   111 |        8 |
+|   112 |        7 |
+|   120 |        1 |
+|   121 |        4 |
+|   122 |        5 |
+|   130 |        3 |
++-------+----------+
+8 rows in set (0.00 sec)
+
+Una vez que hemos formado grupo de manera explicita, podemos eliminar grupos usando la clausula HAVING
+	
+	SELECT atributo_agru, funcion_colectiva		
+	FROM tabla 
+	[WHERE condicion] 
+	[GROUP BY atributo_agru/s]
+	[HAVING condicion]
+	[ORDER BY atributos/s]
+
+HAVING puede verse como un WHERE aplicado a los grupos; pero debemos tener en cuenta que como cada grupo representa un conjunto, 
+mas de un valor el predicado, obligatoriamnete tendra que estar basado sobre una funcion colectiva aplicada al grupo y no a valores
+individuales 
+
+Sepuede agrupar por más de un atributo, siendo el razonamiento el mismo que cuando ordenabamos por mas de un atributo
+
+VALORES NULOS
+Se consideran un grupo más
+
+
+14.4 CONSULTAS SOBRE VARIAS TABLAS 
+Hatas ahora todos los ejemplos que hemoso visto, operan sobre un unica tabla o relacion.
+
+El lenguaje relacional sql permite obtener cualquier dato de cualquier tabla a partir de cual quier dato de cualquier tabla
+
+Recordemos que en el algebra relacional (sobre el que esta basado el SQL) tenemos una serie de operadores y se pueden clasiificar:
+
+a) Atendiendo a su naturaleza
+	- Operadores tradicionales de conjuntos (union, diferencia, interseccion y producto cartesiano)
+	- Operadores definidos para el modelo relacional (proyeccion, seleccion, reunion natural o join, division)
+
+b) Atendiendo al numero de operandos que necesitan para operar 
+	- Operadores unarios que pueden operar sobre una unica relacion (proyeccion y la seleccion)
+	- Operadores binarios que necesitan al menos dos relaciones para operar (union, diferencia, producto cartesiano, reunion y la division)
+
+RELACIONES COMPATIBLES
+Dos relaciones o mas son compatibles si tienen el mismo numero de atributos(columnas) y todas en el mismo orden, estan definidas en el mismo
+dominio o tipo de datos.
+
+1.- OPERADOR PRODUCTO CARTESIANO
+Pertenece al grupo de los operadores tradicionales de conjutos y se define el producto cartesiano de dos conjuntos A y B 
+y se indica A*B, como el conjunto que resulta de combinar cada elemento del conjunto A con todos y cada uno de los elementos del conjuto B
+
+Desde el punto de vista relacional, el producto cartesiano de dos relaciones R1 y R2 que no necesariamente tienen que ser compatibles, es una
+relacion R que tiene como esquema (columnas) la union de los esquemas de R1 y R2 (la suma de las columnas de las dos relaciones) 
+y como extesion (filas o tuplas) el resultado de combinar cada tupla de R1 con todas y cada una de las tuplas de R2
+
+Para hacer un producto cartesiano de dos relaciones simplemente las ponemos en el FROM
+
+	SELECT * FROM R1, R2
+
+2.- OPERADOR REUNION NATURAL
+Pertenece al grupo de los operadores definidos para el Modelo Relacional y es el operador que nos va a permitir relacionar dos tablas o más a través de las 
+CP y CF que las unen
+
+Se define la Reunión Natural o Join de dos relaciones A y B, no necesariamente compatibles pero que tienen un atributo en común (desde el punto de vista lógico) 
+como el producto de cartesiano (A*B) más la restricción o selección de que los atributos comunes sean iguales
+
+Esta operación es la que me va a relacionar las tuplas en las que coincidan la CP referenciada y la CF. Genericamente sería
+
+
+	SELECT *
+	FROM R1,R2
+	WHERE CP=CF;
+
+Esta operación es la que me permite acceder a cualquier dato de cualquier tabla, a partir de cualquier dato de cualquier tabla
+
+CUALIFICACIÓN DE NOMBRES
+Como puede ocurrir que haya atributos que se llaman igual pero pertenecientes a tablas distintas, cuando éstos aparecen en la misma consulta, tengo que especificar
+a qué tabla pertenecen. Esto se hace con la cualificación de nombres indicando
+
+	nombre_tabla.nombre_atributo
+
+Además se pueden utilizar alias para las tablas igual que en el SELECT, pero en este caso en el FROM (ESTO SE HACE CONSTAMENTE PARA SIMPLIFICAR LAS CONSULTAS)
+
+
+MÉTODO PARA LA REALIZACIÓN DE CUALQUIER CONSULTA
+
+1.-Determinar, a partir de los datos que me piden y los datos que me dan, cúales son las tablas implicadas y cuál es el camino más corto para unirlas en el Modelo
+Lógico Relacional
+
+2.-Hacer la reunión natural de las tablas anteriores
+
+3.-Añadir en el WHERE la condición/es específicas de la consulta
+
+4.-Determinar si hay agrupamientos explícitos (GROUP BY). Si la respuesta es positiva, entonces, determinar si hay HAVING
+
+5.-Hacer la proyección (lo que me piden como resultado) y determinar si las filas se pueden repetir (hay que poner DISTINCT)
+
+6.-Ordenar el resultado
